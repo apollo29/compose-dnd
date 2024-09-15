@@ -24,6 +24,7 @@ internal class ReorderableItemScopeImpl<T>(
     val state: DragAndDropState<T>,
     override val key: Any,
 ) : ReorderableItemScope {
+
     override val isDragging: Boolean
         get() = state.draggedItem?.key == key
 }

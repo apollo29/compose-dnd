@@ -46,7 +46,9 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
+import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem2
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
+import com.mohamedrejeb.compose.dnd.reorder.rememberReorderableLazyListState
 import components.RedBox
 import kotlinx.coroutines.launch
 import utils.handleLazyListScroll
@@ -70,7 +72,7 @@ object ReorderListScreen : Screen {
                         IconButton(
                             onClick = {
                                 navigator.pop()
-                            }
+                            },
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Rounded.ArrowBack,
@@ -86,7 +88,7 @@ object ReorderListScreen : Screen {
                     .fillMaxSize()
                     .safeDrawingPadding()
                     .padding(paddingValues)
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
         }
     }
@@ -96,8 +98,6 @@ object ReorderListScreen : Screen {
 private fun ReorderScreenContent(
     modifier: Modifier = Modifier,
 ) {
-    val scope = rememberCoroutineScope()
-    val reorderState = rememberReorderState<String>()
     var items by remember {
         mutableStateOf(
             listOf(
@@ -110,11 +110,26 @@ private fun ReorderScreenContent(
                 "item7",
                 "item8",
                 "item9",
-            )
+                "item10",
+                "item11",
+                "item12",
+                "item13",
+                "item14",
+                "item15",
+            ),
         )
     }
-
+    val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
+    val reorderState = rememberReorderState<String>()
+    val reorderableLazyListStateOne =
+        rememberReorderableLazyListState(lazyListState) { from, to ->
+            items = items.toMutableList().apply {
+                add(to.index, removeAt(from.index))
+            }
+        }
+
+
 
     ReorderContainer(
         state = reorderState,
@@ -124,27 +139,21 @@ private fun ReorderScreenContent(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             state = lazyListState,
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
             items(items, key = { it }) { item ->
-                ReorderableItem(
+                ReorderableItem2(
                     state = reorderState,
+                    reorderState = reorderableLazyListStateOne,
                     key = item,
                     data = item,
                     onDrop = {},
                     onDragEnter = { state ->
                         items = items.toMutableList().apply {
                             val index = indexOf(item)
-                            if (index == -1) return@ReorderableItem
+                            if (index == -1) return@ReorderableItem2
                             remove(state.data)
                             add(index, state.data)
-
-                            scope.launch {
-                                handleLazyListScroll(
-                                    lazyListState = lazyListState,
-                                    dropIndex = index,
-                                )
-                            }
                         }
                     },
                     draggableContent = {
@@ -152,10 +161,10 @@ private fun ReorderScreenContent(
                             isDragShadow = true,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(60.dp)
+                                .height(60.dp),
                         )
                     },
-                    modifier = Modifier
+                    modifier = Modifier,
                 ) {
                     RedBox(
                         modifier = Modifier
@@ -163,7 +172,7 @@ private fun ReorderScreenContent(
                                 alpha = if (isDragging) 0f else 1f
                             }
                             .fillMaxWidth()
-                            .height(60.dp)
+                            .height(60.dp),
                     )
                 }
             }
