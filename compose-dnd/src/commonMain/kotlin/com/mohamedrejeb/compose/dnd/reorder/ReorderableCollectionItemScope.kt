@@ -52,14 +52,15 @@ interface ReorderableCollectionItemScope : DraggableCollectionItemScope {
     ): Modifier
 }
 
-class ReorderableCollectionItemScopeImpl<T>(
-    val state: ReorderState<T>,
+class ReorderableCollectionItemScopeImpl<N>(
+    private val reorderState: ReorderState<N>,
     private val reorderableLazyCollectionState: ReorderableLazyCollectionState<*>,
     override val key: Any,
     private val itemPositionProvider: () -> Offset,
 ) : ReorderableCollectionItemScope {
+
     override val isDragging: Boolean
-        get() = state.draggedItem?.key == key
+        get() = reorderState.draggedItem?.key == key
 
     /**
      * Make the UI element the draggable handle for the reorderable item.

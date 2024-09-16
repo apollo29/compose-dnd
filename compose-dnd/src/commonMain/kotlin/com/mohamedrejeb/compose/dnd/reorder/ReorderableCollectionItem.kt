@@ -29,7 +29,7 @@ import com.mohamedrejeb.compose.dnd.gesture.detectDragStartGesture
 /**
  * A composable that allows items to be reordered by dragging.
  *
- * @param reorderState The return value of [rememberReorderableLazyListState], [rememberReorderableLazyGridState], or [rememberReorderableLazyStaggeredGridState]
+ * @param state The return value of [rememberReorderableLazyListState], [rememberReorderableLazyGridState], or [rememberReorderableLazyStaggeredGridState]
  * @param key The key of the item, must be the same as the key passed to the parent composable
  * @param enabled Whether or this item is reorderable. If true, the item will not move for other items but may still be draggable. To make an item not draggable, set `enable = false` in [Modifier.draggable] or [Modifier.longPressDraggable] instead.
  * @param dragging Whether or not this item is currently being dragged
@@ -37,25 +37,25 @@ import com.mohamedrejeb.compose.dnd.gesture.detectDragStartGesture
 @OptIn(ExperimentalDndApi::class)
 @ExperimentalFoundationApi
 @Composable
-fun <T> ReorderableCollectionItem(
+fun <N> ReorderableCollectionItem(
     modifier: Modifier = Modifier,
-    state: ReorderState<T>,
-    reorderState: ReorderableLazyCollectionState<*>,
+    state: ReorderableLazyCollectionState<*>,
+    reorderState: ReorderState<N>,
     key: Any,
-    data: T,
+    data: N,
     enabled: Boolean = true,
-    dragAfterLongPress: Boolean = state.dndState.dragAfterLongPress,
+    dragAfterLongPress: Boolean = reorderState.dndState.dragAfterLongPress,
     zIndex: Float = 0f,
-    onDrop: (state: DraggedItemState<T>) -> Unit = {},
-    onDragEnter: (state: DraggedItemState<T>) -> Unit = {},
-    onDragExit: (state: DraggedItemState<T>) -> Unit = {},
+    onDrop: (state: DraggedItemState<N>) -> Unit = {},
+    onDragEnter: (state: DraggedItemState<N>) -> Unit = {},
+    onDragExit: (state: DraggedItemState<N>) -> Unit = {},
     dropTargets: List<Any> = emptyList(),
     dropStrategy: DropStrategy = DropStrategy.SurfacePercentage,
     dropAnimationSpec: AnimationSpec<Offset> = SpringSpec(),
     sizeDropAnimationSpec: AnimationSpec<Size> = SpringSpec(),
     dragging: Boolean,
     draggableContent: @Composable () -> Unit,
-    content: @Composable() (ReorderableCollectionItemScope.(isDragging: Boolean) -> Unit),
+    content: @Composable (ReorderableCollectionItemScope.(isDragging: Boolean) -> Unit),
 ) {
     var itemPosition by remember { mutableStateOf(Offset.Zero) }
 
@@ -76,21 +76,21 @@ fun <T> ReorderableCollectionItem(
                     content = draggableContent,
                 )
 
-                state.dndState.addOrUpdateDraggableItem(
+                reorderState.dndState.addOrUpdateDraggableItem(
                     state = draggableItemState,
                 )
             }
-            .pointerInput(enabled, key, state, state.dndState.enabled) {
+            .pointerInput(enabled, key, reorderState, reorderState.dndState.enabled) {
                 detectDragStartGesture(
                     key = key,
-                    state = state.dndState,
-                    enabled = enabled && state.dndState.enabled,
+                    state = reorderState.dndState,
+                    enabled = enabled && reorderState.dndState.enabled,
                     dragAfterLongPress = dragAfterLongPress,
                 )
             }
             .dropTarget(
                 key = key,
-                state = state.dndState,
+                state = reorderState.dndState,
                 zIndex = zIndex,
                 onDrop = onDrop,
                 onDragEnter = onDragEnter,
@@ -98,10 +98,10 @@ fun <T> ReorderableCollectionItem(
             )
             .then(modifier),
     ) {
-        val itemScope = remember(reorderState, key) {
+        val itemScope = remember(state, key) {
             ReorderableCollectionItemScopeImpl(
-                state = state,
-                reorderableLazyCollectionState = reorderState,
+                reorderState = reorderState,
+                reorderableLazyCollectionState = state,
                 key = key,
                 itemPositionProvider = { itemPosition },
             )
@@ -109,11 +109,11 @@ fun <T> ReorderableCollectionItem(
         itemScope.content(dragging)
     }
 
-    LaunchedEffect(reorderState.reorderableKeys, enabled) {
+    LaunchedEffect(state.reorderableKeys, enabled) {
         if (enabled) {
-            reorderState.reorderableKeys.add(key)
+            state.reorderableKeys.add(key)
         } else {
-            reorderState.reorderableKeys.remove(key)
+            state.reorderableKeys.remove(key)
         }
     }
 }

@@ -76,7 +76,7 @@ fun <T> ReorderableItem(
     onDragExit: (state: DraggedItemState<T>) -> Unit = {},
     dropAnimationSpec: AnimationSpec<Offset> = SpringSpec(),
     sizeDropAnimationSpec: AnimationSpec<Size> = SpringSpec(),
-    draggableContent: (@Composable () -> Unit),
+    draggableContent: (@Composable () -> Unit)? = null,
     content: @Composable ReorderableItemScope.() -> Unit,
 ) {
     LaunchedEffect(key, state, data) {
@@ -130,7 +130,11 @@ fun <T> ReorderableItem(
                     dropStrategy = dropStrategy,
                     dropAnimationSpec = dropAnimationSpec,
                     sizeDropAnimationSpec = sizeDropAnimationSpec,
-                    content = draggableContent,
+                    content = draggableContent ?: {
+                        with(reorderableItemScopeShadowImpl) {
+                            content()
+                        }
+                    },
                 )
 
                 state.dndState.addOrUpdateDraggableItem(

@@ -1,20 +1,17 @@
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.bundling.Jar
-import org.gradle.kotlin.dsl.`maven-publish`
-
 plugins {
     `maven-publish`
-    signing
 }
 
 publishing {
     // Configure all publications
     publications.withType<MavenPublication> {
         // Stub javadoc.jar artifact
-        artifact(tasks.register("${name}JavadocJar", Jar::class) {
-            archiveClassifier.set("javadoc")
-            archiveAppendix.set(this@withType.name)
-        })
+        artifact(
+            tasks.register("${name}JavadocJar", Jar::class) {
+                archiveClassifier.set("javadoc")
+                archiveAppendix.set(this@withType.name)
+            },
+        )
 
         // Provide artifacts information required by Maven Central
         pom {
@@ -34,6 +31,11 @@ publishing {
                     name.set("Mohamed Rejeb")
                     email.set("mohamedrejeb445@gmail.com")
                 }
+                developer {
+                    id.set("tdascoli")
+                    name.set("Thomas D'Ascoli")
+                    email.set("thomas@dasco.li")
+                }
             }
             issueManagement {
                 system.set("Github")
@@ -45,18 +47,4 @@ publishing {
             }
         }
     }
-}
-
-signing {
-    useInMemoryPgpKeys(
-        System.getenv("OSSRH_GPG_SECRET_KEY_ID"),
-        System.getenv("OSSRH_GPG_SECRET_KEY"),
-        System.getenv("OSSRH_GPG_SECRET_KEY_PASSWORD"),
-    )
-    sign(publishing.publications)
-}
-
-// TODO: remove after https://youtrack.jetbrains.com/issue/KT-46466 is fixed
-project.tasks.withType(AbstractPublishToMaven::class.java).configureEach {
-    dependsOn(project.tasks.withType(Sign::class.java))
 }

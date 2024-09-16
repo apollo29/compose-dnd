@@ -262,6 +262,7 @@ open class ReorderableLazyCollectionState<out T> internal constructor(
         draggingItem.contains(item.center)
     },
 ) : ReorderableLazyCollectionStateInterface {
+
     private val onMoveStateMutex: Mutex = Mutex()
 
     internal val orientation: Orientation

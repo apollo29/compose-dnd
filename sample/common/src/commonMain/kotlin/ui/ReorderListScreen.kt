@@ -36,7 +36,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -45,13 +44,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
-import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem2
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderableLazyListState
 import components.RedBox
-import kotlinx.coroutines.launch
-import utils.handleLazyListScroll
 
 object ReorderListScreen : Screen {
 
@@ -119,7 +115,7 @@ private fun ReorderScreenContent(
             ),
         )
     }
-    val scope = rememberCoroutineScope()
+
     val lazyListState = rememberLazyListState()
     val reorderState = rememberReorderState<String>()
     val reorderableLazyListStateOne =
@@ -143,8 +139,8 @@ private fun ReorderScreenContent(
         ) {
             items(items, key = { it }) { item ->
                 ReorderableItem2(
-                    state = reorderState,
-                    reorderState = reorderableLazyListStateOne,
+                    state = reorderableLazyListStateOne,
+                    reorderState = reorderState,
                     key = item,
                     data = item,
                     onDrop = {},

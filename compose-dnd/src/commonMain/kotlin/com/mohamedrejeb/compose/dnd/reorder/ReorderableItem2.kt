@@ -23,7 +23,7 @@ import com.mohamedrejeb.compose.dnd.drag.DropStrategy
 /**
  * A composable that allows an item in LazyColumn or LazyRow to be reordered by dragging.
  *
- * @param reorderState The return value of [rememberReorderableLazyListState]
+ * @param state The return value of [rememberReorderableLazyListState]
  * @param key The key of the item, must be the same as the key passed to [LazyListScope.item](androidx.compose.foundation.lazy.item), [LazyListScope.items](androidx.compose.foundation.lazy.items) or similar functions in [LazyListScope](androidx.compose.foundation.lazy.LazyListScope)
  * @param enabled Whether or this item is reorderable. If true, the item will not move for other items but may still be draggable. To make an item not draggable, set `enable = false` in [Modifier.draggable] or [Modifier.longPressDraggable] instead.
  * @param animateItemModifier The [Modifier] that will be applied to items that are not being dragged.
@@ -51,13 +51,13 @@ import com.mohamedrejeb.compose.dnd.drag.DropStrategy
 @Composable
 fun <T> LazyItemScope.ReorderableItem2(
     modifier: Modifier = Modifier,
-    state: ReorderState<T>,
-    reorderState: ReorderableLazyListState,
+    state: ReorderableLazyListState,
+    reorderState: ReorderState<T>,
     key: Any,
     data: T,
     zIndex: Float = 0f,
     enabled: Boolean = true,
-    dragAfterLongPress: Boolean = state.dndState.dragAfterLongPress,
+    dragAfterLongPress: Boolean = reorderState.dndState.dragAfterLongPress,
     dropTargets: List<Any> = emptyList(),
     dropStrategy: DropStrategy = DropStrategy.SurfacePercentage,
     onDrop: (state: DraggedItemState<T>) -> Unit = {},
@@ -70,60 +70,60 @@ fun <T> LazyItemScope.ReorderableItem2(
     content: @Composable ReorderableCollectionItemScope.(isDragging: Boolean) -> Unit,
 ) {
     // DND
-    LaunchedEffect(key, state, data) {
-        state.dndState.draggableItemMap[key]?.data = data
+    LaunchedEffect(key, reorderState, data) {
+        reorderState.dndState.draggableItemMap[key]?.data = data
     }
 
-    LaunchedEffect(key, state, dropTargets) {
-        state.dndState.draggableItemMap[key]?.dropTargets = dropTargets
+    LaunchedEffect(key, reorderState, dropTargets) {
+        reorderState.dndState.draggableItemMap[key]?.dropTargets = dropTargets
     }
 
-    LaunchedEffect(key, state, dropStrategy) {
-        state.dndState.draggableItemMap[key]?.dropStrategy = dropStrategy
+    LaunchedEffect(key, reorderState, dropStrategy) {
+        reorderState.dndState.draggableItemMap[key]?.dropStrategy = dropStrategy
     }
 
-    LaunchedEffect(key, state, dropAnimationSpec) {
-        state.dndState.draggableItemMap[key]?.dropAnimationSpec = dropAnimationSpec
+    LaunchedEffect(key, reorderState, dropAnimationSpec) {
+        reorderState.dndState.draggableItemMap[key]?.dropAnimationSpec = dropAnimationSpec
     }
 
-    LaunchedEffect(key, state, sizeDropAnimationSpec) {
-        state.dndState.draggableItemMap[key]?.sizeDropAnimationSpec = sizeDropAnimationSpec
+    LaunchedEffect(key, reorderState, sizeDropAnimationSpec) {
+        reorderState.dndState.draggableItemMap[key]?.sizeDropAnimationSpec = sizeDropAnimationSpec
     }
 
-    DisposableEffect(key, state) {
+    DisposableEffect(key, reorderState) {
         onDispose {
-            state.dndState.removeDraggableItem(key)
+            reorderState.dndState.removeDraggableItem(key)
         }
     }
     // END
 
-    val orientation by derivedStateOf { reorderState.orientation }
-    val dragging by reorderState.isItemDragging(key)
+    val orientation by derivedStateOf { state.orientation }
+    val dragging by state.isItemDragging(key)
     val offsetModifier = if (dragging) {
         Modifier
             .zIndex(1f)
             .then(
                 when (orientation) {
                     Orientation.Vertical -> Modifier.graphicsLayer {
-                        translationY = reorderState.draggingItemOffset.y
+                        translationY = state.draggingItemOffset.y
                     }
 
                     Orientation.Horizontal -> Modifier.graphicsLayer {
-                        translationX = reorderState.draggingItemOffset.x
+                        translationX = state.draggingItemOffset.x
                     }
                 },
             )
-    } else if (key == reorderState.previousDraggingItemKey) {
+    } else if (key == state.previousDraggingItemKey) {
         Modifier
             .zIndex(1f)
             .then(
                 when (orientation) {
                     Orientation.Vertical -> Modifier.graphicsLayer {
-                        translationY = reorderState.previousDraggingItemOffset.value.y
+                        translationY = state.previousDraggingItemOffset.value.y
                     }
 
                     Orientation.Horizontal -> Modifier.graphicsLayer {
-                        translationX = reorderState.previousDraggingItemOffset.value.x
+                        translationX = state.previousDraggingItemOffset.value.x
                     }
                 },
             )
