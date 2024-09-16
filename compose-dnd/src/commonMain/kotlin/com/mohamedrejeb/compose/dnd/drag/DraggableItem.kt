@@ -64,7 +64,7 @@ fun <T> DraggableItem(
     dropAnimationSpec: AnimationSpec<Offset> = SpringSpec(),
     sizeDropAnimationSpec: AnimationSpec<Size> = SpringSpec(),
     draggableContent: (@Composable () -> Unit)? = null,
-    content: @Composable DraggableCollectionItemScope.() -> Unit,
+    content: @Composable DraggableItemScope.() -> Unit,
 ) {
     var itemPosition by remember { mutableStateOf(Offset.Zero) }
 
@@ -96,14 +96,14 @@ fun <T> DraggableItem(
     }
 
     val draggableItemScopeImpl = remember(key, state) {
-        DraggableCollectionItemScopeImpl(
+        DraggableItemScopeImpl(
             key = key,
             state = state,
         )
     }
 
     val draggableItemScopeShadowImpl = remember(key) {
-        DraggableCollectionItemScopeShadowImpl(
+        DraggableItemScopeShadowImpl(
             key = key,
             state = state,
         )

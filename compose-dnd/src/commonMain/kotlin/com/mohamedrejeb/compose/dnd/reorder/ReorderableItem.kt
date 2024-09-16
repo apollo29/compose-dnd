@@ -49,7 +49,7 @@ import com.mohamedrejeb.compose.dnd.gesture.detectDragStartGesture
  * Mark this composable as a reorderable item.
  *
  * @param modifier The modifier to be applied to the item.
- * @param state The return value of [rememberReorderableLazyListState], [rememberReorderableLazyGridState], or [rememberReorderableLazyStaggeredGridState]
+ * @param state The return value of [rememberReorderableLazyListState]
  * @param reorderState The reorder state.
  * @param key The key used to identify the item.
  * @param data The data associated with the item.
@@ -89,7 +89,7 @@ fun <T> LazyItemScope.ReorderableItem(
     sizeDropAnimationSpec: AnimationSpec<Size> = SpringSpec(),
     draggableContent: (@Composable () -> Unit),
     animateItemModifier: Modifier = Modifier.animateItemPlacement(),
-    content: @Composable ReorderableCollectionItemScope.() -> Unit,
+    content: @Composable ReorderableItemScope.() -> Unit,
 ) {
     var itemPosition by remember { mutableStateOf(Offset.Zero) }
 
@@ -119,23 +119,16 @@ fun <T> LazyItemScope.ReorderableItem(
             reorderState.dndState.removeDraggableItem(key)
         }
     }
-    // END
-
 
     val reorderableItemScopeImpl = remember(state, key) {
-        ReorderableCollectionItemScopeImpl(
+        ReorderableItemScopeImpl(
             reorderState = reorderState,
             reorderableLazyCollectionState = state,
             key = key,
             itemPositionProvider = { itemPosition },
         )
     }
-
-    val reorderableItemScopeShadowImpl = remember(key) {
-        ReorderableItemScopeShadowImpl(
-            key = key,
-        )
-    }
+    // END
 
     val orientation by derivedStateOf { state.orientation }
     val dragging by state.isItemDragging(key)
