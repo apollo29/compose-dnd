@@ -16,3 +16,11 @@ class DraggableCollectionItemScopeImpl<T>(
     override val isDragging: Boolean
         get() = state.draggedItem?.key == key
 }
+
+class DraggableCollectionItemScopeShadowImpl<T>(
+    val state: DragAndDropState<T>,
+    override val key: Any,
+) : DraggableCollectionItemScope {
+    override val isDragging: Boolean
+        get() = false
+}

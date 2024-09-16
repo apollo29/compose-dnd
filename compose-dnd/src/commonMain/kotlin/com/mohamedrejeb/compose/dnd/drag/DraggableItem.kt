@@ -21,7 +21,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -61,8 +64,11 @@ fun <T> DraggableItem(
     dropAnimationSpec: AnimationSpec<Offset> = SpringSpec(),
     sizeDropAnimationSpec: AnimationSpec<Size> = SpringSpec(),
     draggableContent: (@Composable () -> Unit)? = null,
-    content: @Composable DraggableItemScope.() -> Unit,
+    content: @Composable DraggableCollectionItemScope.() -> Unit,
 ) {
+    var itemPosition by remember { mutableStateOf(Offset.Zero) }
+
+    // DRAG AND DROP
     LaunchedEffect(key, state, data) {
         state.draggableItemMap[key]?.data = data
     }
@@ -90,22 +96,26 @@ fun <T> DraggableItem(
     }
 
     val draggableItemScopeImpl = remember(key, state) {
-        DraggableItemScopeImpl(
+        DraggableCollectionItemScopeImpl(
             key = key,
             state = state,
         )
     }
 
     val draggableItemScopeShadowImpl = remember(key) {
-        DraggableItemScopeShadowImpl(
+        DraggableCollectionItemScopeShadowImpl(
             key = key,
+            state = state,
         )
     }
+    // END
 
     with(draggableItemScopeImpl) {
         Box(
             modifier = modifier
                 .onGloballyPositioned {
+                    itemPosition = it.positionInRoot()
+
                     val draggableItemState = DraggableItemState(
                         key = key,
                         data = data,

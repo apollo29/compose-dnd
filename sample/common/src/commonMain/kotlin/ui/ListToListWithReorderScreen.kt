@@ -51,7 +51,7 @@ import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
 import com.mohamedrejeb.compose.dnd.drag.DropStrategy
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
-import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem2
+import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderableLazyListState
 import components.CardBox
@@ -190,7 +190,7 @@ private fun ListToListWithReorderContent(
                     ),
             ) {
                 items(listOne, key = { it }) { item ->
-                    ReorderableItem2(
+                    ReorderableItem(
                         state = reorderableLazyListStateOne,
                         reorderState = reorderState,
                         key = item,
@@ -200,7 +200,7 @@ private fun ListToListWithReorderContent(
                         onDragEnter = { state ->
                             listOne = listOne.toMutableList().apply {
                                 val index = indexOf(item)
-                                if (index == -1) return@ReorderableItem2
+                                if (index == -1) return@ReorderableItem
                                 if (!remove(state.data)) {
                                     // If the item is not in listOne, it means it's coming from the listTwo
                                     listTwo = listTwo.toMutableList().apply {
@@ -218,7 +218,7 @@ private fun ListToListWithReorderContent(
                             )
                         },
                         modifier = Modifier,
-                    ) { isDragging2 ->
+                    ) {
                         // todo isDragging is Redundant
                         CardBox(item = item, isDragging = isDragging)
                     }
@@ -252,7 +252,7 @@ private fun ListToListWithReorderContent(
                     ),
             ) {
                 items(listTwo, key = { it }) { item ->
-                    ReorderableItem2(
+                    ReorderableItem(
                         state = reorderableLazyListStateTimeline,
                         reorderState = reorderState,
                         key = item,
@@ -262,7 +262,7 @@ private fun ListToListWithReorderContent(
                         onDragEnter = { state ->
                             listTwo = listTwo.toMutableList().apply {
                                 val index = indexOf(item)
-                                if (index == -1) return@ReorderableItem2
+                                if (index == -1) return@ReorderableItem
                                 if (!remove(state.data)) {
                                     // If the item is not in listTwo, it means it's coming from the listOne
                                     listOne = listOne.toMutableList().apply {

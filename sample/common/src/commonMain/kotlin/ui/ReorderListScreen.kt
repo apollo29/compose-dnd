@@ -44,7 +44,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
-import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem2
+import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderableLazyListState
 import components.RedBox
@@ -138,7 +138,7 @@ private fun ReorderScreenContent(
                 .fillMaxSize(),
         ) {
             items(items, key = { it }) { item ->
-                ReorderableItem2(
+                ReorderableItem(
                     state = reorderableLazyListStateOne,
                     reorderState = reorderState,
                     key = item,
@@ -147,7 +147,7 @@ private fun ReorderScreenContent(
                     onDragEnter = { state ->
                         items = items.toMutableList().apply {
                             val index = indexOf(item)
-                            if (index == -1) return@ReorderableItem2
+                            if (index == -1) return@ReorderableItem
                             remove(state.data)
                             add(index, state.data)
                         }
