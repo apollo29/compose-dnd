@@ -17,7 +17,6 @@ package com.mohamedrejeb.compose.dnd.drag
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.SpringSpec
-import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +54,8 @@ fun <T> DraggableItem(
     key: Any,
     data: T,
     state: DragAndDropState<T>,
+    enabled: Boolean = true,
+    dragAfterLongPress: Boolean = state.dragAfterLongPress,
     dropTargets: List<Any> = emptyList(),
     dropStrategy: DropStrategy = DropStrategy.SurfacePercentage,
     dropAnimationSpec: AnimationSpec<Offset> = SpringSpec(),
@@ -105,6 +106,31 @@ fun <T> DraggableItem(
         )
     }
     // END
+
+    /*
+        CoreDraggableItem(
+        modifier = modifier,
+        key = key,
+        data = data,
+        state = state,
+        enabled = enabled,
+        dragAfterLongPress = dragAfterLongPress,
+        dropTargets = dropTargets,
+        dropStrategy = dropStrategy,
+        dropAnimationSpec = dropAnimationSpec,
+        sizeDropAnimationSpec = sizeDropAnimationSpec,
+        draggableContent = draggableContent ?: {
+            with(draggableItemScopeShadowImpl) {
+                content()
+            }
+        },
+    ) {
+        with(draggableItemScopeImpl) {
+            content()
+        }
+    }
+     */
+
 
     with(draggableItemScopeImpl) {
         Box(

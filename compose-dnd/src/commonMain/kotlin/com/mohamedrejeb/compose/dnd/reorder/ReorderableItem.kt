@@ -36,11 +36,10 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.toSize
 import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
-import com.mohamedrejeb.compose.dnd.drag.DraggableItemState
+import com.mohamedrejeb.compose.dnd.drag.CoreDraggableItem
 import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 import com.mohamedrejeb.compose.dnd.drag.DropStrategy
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
-import com.mohamedrejeb.compose.dnd.gesture.detectDragStartGesture
 
 /**
  * Mark this composable as a reorderable item.
@@ -116,7 +115,7 @@ fun <T> LazyItemScope.ReorderableItem(
         }
     }
 
-    val reorderableItemScopeImpl = remember(state, key) {
+    val reorderableItemScopeImpl = remember(key, state {
         ReorderableItemScopeImpl(
             reorderState = reorderState,
             reorderableLazyCollectionState = state,
@@ -146,6 +145,38 @@ fun <T> LazyItemScope.ReorderableItem(
         //println("** animateItemModifier $key")
         animateItemModifier
     }
+
+    /*
+        CoreDraggableItem(
+        modifier = modifier
+            .dropTarget(
+                key = key,
+                state = state.dndState,
+                zIndex = zIndex,
+                onDrop = onDrop,
+                onDragEnter = onDragEnter,
+                onDragExit = onDragExit,
+            ),
+        key = key,
+        data = data,
+        state = state.dndState,
+        enabled = enabled,
+        dragAfterLongPress = dragAfterLongPress,
+        dropTargets = dropTargets,
+        dropStrategy = dropStrategy,
+        dropAnimationSpec = dropAnimationSpec,
+        sizeDropAnimationSpec = sizeDropAnimationSpec,
+        draggableContent = draggableContent ?: {
+            with(reorderableItemScopeShadowImpl) {
+                content()
+            }
+        },
+    ) {
+        with(reorderableItemScopeImpl) {
+            content()
+        }
+    }
+     */
 
     with(reorderableItemScopeImpl) {
         Box(

@@ -81,6 +81,10 @@ class DragAndDropState<T>() {
      * Add or update [DropTargetState] in [dropTargetMap]
      */
     internal fun addDropTarget(dropTargetState: DropTargetState<T>) {
+        if (dropTargetMap[dropTargetState.key] == dropTargetState) {
+            return
+        }
+
         dropTargetMap[dropTargetState.key] = dropTargetState
     }
 
@@ -113,48 +117,22 @@ class DragAndDropState<T>() {
      *
      * @param state - new state
      */
-    internal fun addOrUpdateDraggableItem(
-        state: DraggableItemState<T>,
+    internal fun addDraggableItem(
+        state: DraggableItemState<T>
     ) {
-        val key = state.key
-        val oldState = draggableItemMap[key]
-
-        if (oldState != null) {
-            updateDraggableItem(oldState, state)
-        } else {
-            draggableItemMap[key] = state
-        }
+        draggableItemMap[state.key] = state
     }
 
     internal fun removeDraggableItem(key: Any) {
         draggableItemMap.remove(key)
     }
 
-    /**
-     * Update [DraggableItemState]
-     *
-     * @param oldState - old state
-     * @param newState - new state
-     */
-    private fun updateDraggableItem(
-        oldState: DraggableItemState<T>,
-        newState: DraggableItemState<T>,
-    ) {
-        oldState.size = newState.size
-        oldState.positionInRoot = newState.positionInRoot
-        oldState.dropTargets = newState.dropTargets
-        oldState.data = newState.data
-        oldState.key = newState.key
-    }
-
     private var dragStartPositionInRoot: Offset = Offset.Zero
     private var dragStartOffset: Offset = Offset.Zero
 
     internal val dragPosition: MutableState<Offset> = mutableStateOf(Offset.Zero)
-    internal val dragPositionAnimatable: Animatable<Offset, AnimationVector2D> =
-        Animatable(Offset.Zero, Offset.VectorConverter)
-    internal val dragSizeAnimatable: Animatable<Size, AnimationVector2D> =
-        Animatable(Size.Zero, Size.VectorConverter)
+    internal val dragPositionAnimatable: Animatable<Offset, AnimationVector2D> = Animatable(Offset.Zero, Offset.VectorConverter)
+    internal val dragSizeAnimatable: Animatable<Size, AnimationVector2D> = Animatable(Size.Zero, Size.VectorConverter)
 
     /**
      * Handle drag start method is called when drag starts
@@ -237,9 +215,7 @@ class DragAndDropState<T>() {
         )
 
         if (hoveredDropTarget?.key != hoveredDropTargetKey && newDraggedItemState != null) {
-            dropTargetMap.values.find { it.key == hoveredDropTargetKey }?.onDragExit?.invoke(
-                newDraggedItemState,
-            )
+            dropTargetMap.values.find { it.key == hoveredDropTargetKey }?.onDragExit?.invoke(newDraggedItemState)
             hoveredDropTarget?.onDragEnter?.invoke(newDraggedItemState)
         }
 
@@ -264,8 +240,7 @@ class DragAndDropState<T>() {
             val draggedItem = draggableItemMap[currentDraggableItem.key]
 
             val positionAnimation = launch {
-                val dropTopLeft = dropTarget?.getDropTopLeft(currentDraggableItem.size)
-                    ?: currentDraggableItem.positionInRoot
+                val dropTopLeft = dropTarget?.getDropTopLeft(currentDraggableItem.size) ?: currentDraggableItem.positionInRoot
 
                 val sizeDiff =
                     if (draggedItem == null) {
