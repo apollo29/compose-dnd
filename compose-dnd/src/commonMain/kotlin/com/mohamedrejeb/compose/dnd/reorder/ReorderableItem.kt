@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.toSize
@@ -39,6 +40,7 @@ import com.mohamedrejeb.compose.dnd.drag.DraggableItemState
 import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
 import com.mohamedrejeb.compose.dnd.drag.DropStrategy
 import com.mohamedrejeb.compose.dnd.drop.dropTarget
+import com.mohamedrejeb.compose.dnd.gesture.detectDragStartGesture
 
 /**
  * Mark this composable as a reorderable item.
@@ -68,8 +70,7 @@ import com.mohamedrejeb.compose.dnd.drop.dropTarget
 @Composable
 fun <T> LazyItemScope.ReorderableItem(
     modifier: Modifier = Modifier,
-    state: ReorderableLazyListState,
-    reorderState: ReorderState<T>,
+    state: ReorderableLazyListState<T>,
     key: Any,
     data: T,
     zIndex: Float = 0f,
@@ -86,6 +87,7 @@ fun <T> LazyItemScope.ReorderableItem(
     content: @Composable ReorderableItemScope.(isDraggable: Boolean) -> Unit,
 ) {
     var itemPosition by remember { mutableStateOf(Offset.Zero) }
+    val reorderState = state.reorderState
 
     // DND
     LaunchedEffect(key, reorderState, data) {
@@ -133,6 +135,7 @@ fun <T> LazyItemScope.ReorderableItem(
             },
         )
     } else if (key == state.previousDraggingItemKey) {
+        println("** previousDraggingItemKey $key")
         Modifier.then(
             Modifier.graphicsLayer {
                 translationY = state.previousDraggingItemOffset.value.y
@@ -140,12 +143,13 @@ fun <T> LazyItemScope.ReorderableItem(
             },
         )
     } else {
+        //println("** animateItemModifier $key")
         animateItemModifier
     }
 
     with(reorderableItemScopeImpl) {
         Box(
-            modifier = modifier.then(offsetModifier)
+            modifier = modifier
                 .onGloballyPositioned {
                     itemPosition = it.positionInRoot()
 
@@ -163,6 +167,14 @@ fun <T> LazyItemScope.ReorderableItem(
 
                     reorderState.dndState.addOrUpdateDraggableItem(
                         state = draggableItemState,
+                    )
+                }
+                .pointerInput(enabled, key, reorderState, reorderState.dndState.enabled) {
+                    detectDragStartGesture(
+                        key = key,
+                        state = reorderState.dndState,
+                        enabled = enabled && reorderState.dndState.enabled,
+                        dragAfterLongPress = true,
                     )
                 }
                 .dropTarget(

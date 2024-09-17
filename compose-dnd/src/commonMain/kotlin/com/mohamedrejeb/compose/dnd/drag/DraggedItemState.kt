@@ -42,22 +42,4 @@ class DraggedItemState<T> internal constructor(
             dragAmount = dragAmount,
         )
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is DraggedItemState<*>) return false
-
-        if (key != other.key) return false
-        if (data != other.data) return false
-        if (dragAmount != other.dragAmount) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = key.hashCode()
-        result = 31 * result + data.hashCode()
-        result = 31 * result + dragAmount.hashCode()
-        return result
-    }
 }

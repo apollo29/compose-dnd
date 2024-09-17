@@ -67,14 +67,17 @@ fun <T> DragAndDropContainer(
             .pointerInput(enabled, state, state.pointerId) {
                 if (!enabled) return@pointerInput
 
+                println("*** Container pointerInput ${state.pointerId}")
+
                 awaitEachGesture {
                     if (state.pointerId == null) {
                         awaitPointerEvent()
                     }
 
                     state.pointerId?.let { pointerId ->
-                        if (
-                            drag(pointerId) {
+                        println("*** Container pointerInput not null")
+                        if (drag(pointerId) {
+                                println("*** Container drag(pointerId)")
                                 scope.launch {
                                     state.handleDrag(it.position + positionInRoot.value)
                                 }

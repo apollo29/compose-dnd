@@ -232,8 +232,9 @@ interface ReorderableLazyCollectionStateInterface {
 // base on https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/integration-tests/foundation-demos/src/main/java/androidx/compose/foundation/demos/LazyColumnDragAndDropDemo.kt;drc=edde6e8b9d304264598f962a3b0e5c267e1373bb
 // and https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/foundation/foundation/integration-tests/foundation-demos/src/main/java/androidx/compose/foundation/demos/LazyGridDragAndDropDemo.kt;drc=44e4233f7bc0290a1509ef2d448f1309eb63248f
 @Stable
-open class ReorderableLazyCollectionState<out T> internal constructor(
+open class ReorderableLazyCollectionState<out T, N> internal constructor(
     private val state: LazyCollectionState<T>,
+    val reorderState: ReorderState<N>,
     private val scope: CoroutineScope,
     private val onMoveState: State<suspend CoroutineScope.(from: T, to: T) -> Unit>,
 

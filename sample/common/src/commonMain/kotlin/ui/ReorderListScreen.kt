@@ -119,7 +119,7 @@ private fun ReorderScreenContent(
     val lazyListState = rememberLazyListState()
     val reorderState = rememberReorderState<String>()
     val reorderableLazyListStateOne =
-        rememberReorderableLazyListState(lazyListState) { from, to ->
+        rememberReorderableLazyListState(lazyListState, reorderState) { from, to ->
             items = items.toMutableList().apply {
                 add(to.index, removeAt(from.index))
             }
@@ -138,7 +138,6 @@ private fun ReorderScreenContent(
             items(items, key = { it }) { item ->
                 ReorderableItem(
                     state = reorderableLazyListStateOne,
-                    reorderState = reorderState,
                     key = item,
                     data = item,
                     onDrop = {},
@@ -162,7 +161,6 @@ private fun ReorderScreenContent(
                 ) {
                     RedBox(
                         modifier = Modifier
-                            .longPressDraggableHandle()
                             .graphicsLayer {
                                 alpha = if (isDragging) 0f else 1f
                             }

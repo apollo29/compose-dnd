@@ -230,6 +230,7 @@ class DragAndDropState<T>() {
                 draggedItemSize = currentDraggableItem.size,
                 dropTargets = hoveredDropTargets,
             )
+        println("** hoveredDropTarget: ${hoveredDropTarget?.key}")
 
         val newDraggedItemState = draggedItem?.copy(
             dragAmount = dragAmount,

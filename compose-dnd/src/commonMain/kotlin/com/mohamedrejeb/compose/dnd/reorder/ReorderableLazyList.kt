@@ -55,8 +55,9 @@ import kotlinx.coroutines.CoroutineScope
  * @param onMove The function that is called when an item is moved. Make sure this function returns only after the items are moved. This suspend function is invoked with the `rememberReorderableLazyListState` scope, allowing for async processing, if desired. Note that the scope used here is the one provided by the composition where `rememberReorderableLazyListState` is called, for long running work that needs to outlast `rememberReorderableLazyListState` being in the composition you should use a scope that fits the lifecycle needed.
  */
 @Composable
-fun rememberReorderableLazyListState(
+fun <T> rememberReorderableLazyListState(
     lazyListState: LazyListState,
+    reorderState: ReorderState<T>,
     dragAfterLongPress: Boolean = false,
     scrollThresholdPadding: PaddingValues = PaddingValues(0.dp),
     scrollThreshold: Dp = ReorderableLazyCollectionDefaults.ScrollThreshold,
@@ -65,7 +66,7 @@ fun rememberReorderableLazyListState(
         pixelAmountProvider = { lazyListState.layoutInfo.mainAxisViewportSize * ScrollAmountMultiplier },
     ),
     onMove: suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit,
-): ReorderableLazyListState {
+): ReorderableLazyListState<T> {
     val density = LocalDensity.current
     val scrollThresholdPx = with(density) { scrollThreshold.toPx() }
 
@@ -87,6 +88,7 @@ fun rememberReorderableLazyListState(
     return remember(
         scope,
         lazyListState,
+        reorderState,
         dragAfterLongPress,
         scrollThreshold,
         scrollThresholdPadding,
@@ -95,6 +97,7 @@ fun rememberReorderableLazyListState(
     ) {
         ReorderableLazyListState(
             state = lazyListState,
+            reorderState = reorderState,
             scope = scope,
             onMoveState = onMoveState,
             scrollThreshold = scrollThresholdPx,
@@ -169,8 +172,9 @@ private fun LazyListState.toLazyCollectionState() =
     }
 
 @Stable
-class ReorderableLazyListState internal constructor(
+class ReorderableLazyListState<T> internal constructor(
     state: LazyListState,
+    reorderState: ReorderState<T>,
     scope: CoroutineScope,
     onMoveState: State<suspend CoroutineScope.(from: LazyListItemInfo, to: LazyListItemInfo) -> Unit>,
 
@@ -184,8 +188,9 @@ class ReorderableLazyListState internal constructor(
     scroller: Scroller,
     layoutDirection: LayoutDirection,
     shouldItemMove: (draggingItem: Rect, item: Rect) -> Boolean,
-) : ReorderableLazyCollectionState<LazyListItemInfo>(
+) : ReorderableLazyCollectionState<LazyListItemInfo, T>(
     state.toLazyCollectionState(),
+    reorderState,
     scope,
     onMoveState,
     scrollThreshold,

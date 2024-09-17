@@ -55,7 +55,7 @@ interface ReorderableItemScope : DraggableItemScope {
 
 class ReorderableItemScopeImpl<N>(
     private val reorderState: ReorderState<N>,
-    private val reorderableLazyCollectionState: ReorderableLazyCollectionState<*>,
+    private val reorderableLazyCollectionState: ReorderableLazyCollectionState<*, N>,
     override val key: Any,
     private val itemPositionProvider: () -> Offset,
 ) : ReorderableItemScope {
@@ -113,7 +113,8 @@ class ReorderableItemScopeImpl<N>(
                     reorderState.dndState.draggableItemMap[key] ?: return@draggable
 
                 coroutineScope.launch {
-                    reorderState.dndState.handleDragStart(drag.position + draggableItemState.positionInRoot)
+                    //reorderState.dndState.handleDragStart(drag.position + draggableItemState.positionInRoot)
+                    reorderState.dndState.handleDragStart(handleOffset)
                 }
 
                 reorderState.dndState.pointerId = drag.id

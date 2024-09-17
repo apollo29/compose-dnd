@@ -136,6 +136,7 @@ private fun ListToListWithReorderContent(
     val reorderableLazyListStateOne =
         rememberReorderableLazyListState(
             lazyListState = lazyListStateOne,
+            reorderState = reorderState,
             dragAfterLongPress = true,
         ) { from, to ->
             listOne = listOne.toMutableList().apply {
@@ -146,6 +147,7 @@ private fun ListToListWithReorderContent(
     val reorderableLazyListStateTimeline =
         rememberReorderableLazyListState(
             lazyListState = lazyListStateTwo,
+            reorderState = reorderState,
             dragAfterLongPress = true,
         ) { from, to ->
             listTwo = listTwo.toMutableList().apply {
@@ -192,7 +194,6 @@ private fun ListToListWithReorderContent(
                 items(listOne, key = { it }) { item ->
                     ReorderableItem(
                         state = reorderableLazyListStateOne,
-                        reorderState = reorderState,
                         key = item,
                         data = item,
                         zIndex = 1f,
@@ -257,7 +258,6 @@ private fun ListToListWithReorderContent(
                 items(listTwo, key = { it }) { item ->
                     ReorderableItem(
                         state = reorderableLazyListStateTimeline,
-                        reorderState = reorderState,
                         key = item,
                         data = item,
                         zIndex = 1f,
@@ -285,7 +285,7 @@ private fun ListToListWithReorderContent(
                         modifier = Modifier,
                     ) {
                         CardBox(
-                            modifier = Modifier.longPressDraggableHandle(),
+                            //modifier = Modifier.longPressDraggableHandle(),
                             item = item,
                             isDragging = isDragging,
                         )
