@@ -18,18 +18,10 @@ package com.mohamedrejeb.compose.dnd.drag
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.unit.toSize
 import com.mohamedrejeb.compose.dnd.DragAndDropState
 
 /**
@@ -55,43 +47,14 @@ fun <T> DraggableItem(
     data: T,
     state: DragAndDropState<T>,
     enabled: Boolean = true,
-    dragAfterLongPress: Boolean = state.dragAfterLongPress,
     dropTargets: List<Any> = emptyList(),
     dropStrategy: DropStrategy = DropStrategy.SurfacePercentage,
     dropAnimationSpec: AnimationSpec<Offset> = SpringSpec(),
     sizeDropAnimationSpec: AnimationSpec<Size> = SpringSpec(),
     draggableContent: (@Composable () -> Unit)? = null,
-    content: @Composable DraggableItemScope.(isDraggable: Boolean) -> Unit,
+    content: @Composable DraggableItemScope.() -> Unit,
 ) {
-    var itemPosition by remember { mutableStateOf(Offset.Zero) }
-
     // DRAG AND DROP
-    LaunchedEffect(key, state, data) {
-        state.draggableItemMap[key]?.data = data
-    }
-
-    LaunchedEffect(key, state, dropTargets) {
-        state.draggableItemMap[key]?.dropTargets = dropTargets
-    }
-
-    LaunchedEffect(key, state, dropStrategy) {
-        state.draggableItemMap[key]?.dropStrategy = dropStrategy
-    }
-
-    LaunchedEffect(key, state, dropAnimationSpec) {
-        state.draggableItemMap[key]?.dropAnimationSpec = dropAnimationSpec
-    }
-
-    LaunchedEffect(key, state, sizeDropAnimationSpec) {
-        state.draggableItemMap[key]?.sizeDropAnimationSpec = sizeDropAnimationSpec
-    }
-
-    DisposableEffect(key, state) {
-        onDispose {
-            state.removeDraggableItem(key)
-        }
-    }
-
     val draggableItemScopeImpl = remember(key, state) {
         DraggableItemScopeImpl(
             key = key,
@@ -107,14 +70,12 @@ fun <T> DraggableItem(
     }
     // END
 
-    /*
-        CoreDraggableItem(
+    CoreDraggableItem(
         modifier = modifier,
         key = key,
         data = data,
         state = state,
         enabled = enabled,
-        dragAfterLongPress = dragAfterLongPress,
         dropTargets = dropTargets,
         dropStrategy = dropStrategy,
         dropAnimationSpec = dropAnimationSpec,
@@ -129,37 +90,33 @@ fun <T> DraggableItem(
             content()
         }
     }
-     */
 
+    /*
+        with(draggableItemScopeImpl) {
+            Box(
+                modifier = modifier
+                    .onGloballyPositioned {
+                        itemPosition = it.positionInRoot()
 
-    with(draggableItemScopeImpl) {
-        Box(
-            modifier = modifier
-                .onGloballyPositioned {
-                    itemPosition = it.positionInRoot()
-
-                    val draggableItemState = DraggableItemState(
-                        key = key,
-                        data = data,
-                        positionInRoot = it.positionInRoot(),
-                        size = it.size.toSize(),
-                        dropTargets = dropTargets,
-                        dropStrategy = dropStrategy,
-                        dropAnimationSpec = dropAnimationSpec,
-                        sizeDropAnimationSpec = sizeDropAnimationSpec,
-                        content = draggableContent ?: {
-                            with(draggableItemScopeShadowImpl) {
-                                content(isDragging)
-                            }
-                        },
-                    )
-
-                    state.addOrUpdateDraggableItem(
-                        state = draggableItemState,
-                    )
-                },
-        ) {
-            content(isDragging)
+                        val draggableItemState = DraggableItemState(
+                            key = key,
+                            data = data,
+                            positionInRoot = it.positionInRoot(),
+                            size = it.size.toSize(),
+                            dropTargets = dropTargets,
+                            dropStrategy = dropStrategy,
+                            dropAnimationSpec = dropAnimationSpec,
+                            sizeDropAnimationSpec = sizeDropAnimationSpec,
+                            content = draggableContent ?: {
+                                with(draggableItemScopeShadowImpl) {
+                                    content()
+                                }
+                            },
+                        )
+                    },
+            ) {
+                content()
+            }
         }
-    }
+     */
 }

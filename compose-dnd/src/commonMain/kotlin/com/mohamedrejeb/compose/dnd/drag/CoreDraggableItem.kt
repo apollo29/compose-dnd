@@ -21,7 +21,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -56,7 +59,6 @@ internal fun <T> CoreDraggableItem(
     data: T,
     state: DragAndDropState<T>,
     enabled: Boolean = true,
-    dragAfterLongPress: Boolean = state.dragAfterLongPress,
     dropTargets: List<Any> = emptyList(),
     dropStrategy: DropStrategy = DropStrategy.SurfacePercentage,
     dropAnimationSpec: AnimationSpec<Offset> = SpringSpec(),
@@ -64,6 +66,7 @@ internal fun <T> CoreDraggableItem(
     draggableContent: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
+    var itemPosition by remember { mutableStateOf(Offset.Zero) }
     val draggableItemState = remember(key) {
         DraggableItemState(
             key = key,
@@ -114,6 +117,8 @@ internal fun <T> CoreDraggableItem(
         modifier = modifier
             .onPlaced {
                 draggableItemState.positionInRoot = it.positionInRoot()
+                //??
+                itemPosition = it.positionInRoot()
             }
             .onSizeChanged {
                 draggableItemState.size = it.toSize()
@@ -123,7 +128,7 @@ internal fun <T> CoreDraggableItem(
                     key = key,
                     state = state,
                     enabled = enabled && state.enabled,
-                    dragAfterLongPress = dragAfterLongPress,
+                    dragAfterLongPress = true,
                 )
             },
     ) {

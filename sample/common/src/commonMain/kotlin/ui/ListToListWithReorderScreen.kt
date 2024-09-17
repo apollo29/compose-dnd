@@ -221,7 +221,7 @@ private fun ListToListWithReorderContent(
                         modifier = Modifier,
                     ) {
                         CardBox(
-                            modifier = Modifier.longPressDraggableHandle(),
+                            //modifier = Modifier.longPressDraggableHandle(),
                             item = item,
                             isDragging = isDragging,
                         )

@@ -17,24 +17,12 @@ package com.mohamedrejeb.compose.dnd.reorder
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.SpringSpec
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.unit.toSize
 import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
 import com.mohamedrejeb.compose.dnd.drag.CoreDraggableItem
 import com.mohamedrejeb.compose.dnd.drag.DraggedItemState
@@ -65,9 +53,9 @@ import com.mohamedrejeb.compose.dnd.drop.dropTarget
  * @param draggableContent The content of the draggable item, if null, the content of the item will be used.
  * @param content The content of the item.
  */
-@OptIn(ExperimentalDndApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalDndApi::class)
 @Composable
-fun <T> LazyItemScope.ReorderableItem(
+fun <T> ReorderableItem(
     modifier: Modifier = Modifier,
     state: ReorderableLazyListState<T>,
     key: Any,
@@ -81,77 +69,29 @@ fun <T> LazyItemScope.ReorderableItem(
     onDragExit: (state: DraggedItemState<T>) -> Unit = {},
     dropAnimationSpec: AnimationSpec<Offset> = SpringSpec(),
     sizeDropAnimationSpec: AnimationSpec<Size> = SpringSpec(),
-    draggableContent: (@Composable () -> Unit),
-    animateItemModifier: Modifier = Modifier.animateItemPlacement(),
-    content: @Composable ReorderableItemScope.(isDraggable: Boolean) -> Unit,
+    draggableContent: (@Composable () -> Unit)? = null,
+    content: @Composable ReorderableItemScope.() -> Unit,
 ) {
-    var itemPosition by remember { mutableStateOf(Offset.Zero) }
     val reorderState = state.reorderState
 
-    // DND
-    LaunchedEffect(key, reorderState, data) {
-        reorderState.dndState.draggableItemMap[key]?.data = data
-    }
-
-    LaunchedEffect(key, reorderState, dropTargets) {
-        reorderState.dndState.draggableItemMap[key]?.dropTargets = dropTargets
-    }
-
-    LaunchedEffect(key, reorderState, dropStrategy) {
-        reorderState.dndState.draggableItemMap[key]?.dropStrategy = dropStrategy
-    }
-
-    LaunchedEffect(key, reorderState, dropAnimationSpec) {
-        reorderState.dndState.draggableItemMap[key]?.dropAnimationSpec = dropAnimationSpec
-    }
-
-    LaunchedEffect(key, reorderState, sizeDropAnimationSpec) {
-        reorderState.dndState.draggableItemMap[key]?.sizeDropAnimationSpec = sizeDropAnimationSpec
-    }
-
-    DisposableEffect(key, reorderState) {
-        onDispose {
-            reorderState.dndState.removeDraggableItem(key)
-        }
-    }
-
-    val reorderableItemScopeImpl = remember(key, state {
+    val reorderableItemScopeImpl = remember(key, state) {
         ReorderableItemScopeImpl(
-            reorderState = reorderState,
-            reorderableLazyCollectionState = state,
             key = key,
-            itemPositionProvider = { itemPosition },
+            state = reorderState.dndState,
         )
     }
-    // END
 
-    val dragging by state.isItemDragging(key)
-    val offsetModifier = if (dragging) {
-        Modifier.then(
-            Modifier.graphicsLayer {
-                translationY = state.draggingItemOffset.y
-                translationX = state.draggingItemOffset.x
-            },
+    val reorderableItemScopeShadowImpl = remember(key) {
+        ReorderableItemScopeShadowImpl(
+            key = key,
         )
-    } else if (key == state.previousDraggingItemKey) {
-        println("** previousDraggingItemKey $key")
-        Modifier.then(
-            Modifier.graphicsLayer {
-                translationY = state.previousDraggingItemOffset.value.y
-                translationX = state.previousDraggingItemOffset.value.x
-            },
-        )
-    } else {
-        //println("** animateItemModifier $key")
-        animateItemModifier
     }
 
-    /*
-        CoreDraggableItem(
+    CoreDraggableItem(
         modifier = modifier
             .dropTarget(
                 key = key,
-                state = state.dndState,
+                state = reorderState.dndState,
                 zIndex = zIndex,
                 onDrop = onDrop,
                 onDragEnter = onDragEnter,
@@ -159,9 +99,8 @@ fun <T> LazyItemScope.ReorderableItem(
             ),
         key = key,
         data = data,
-        state = state.dndState,
+        state = reorderState.dndState,
         enabled = enabled,
-        dragAfterLongPress = dragAfterLongPress,
         dropTargets = dropTargets,
         dropStrategy = dropStrategy,
         dropAnimationSpec = dropAnimationSpec,
@@ -174,51 +113,6 @@ fun <T> LazyItemScope.ReorderableItem(
     ) {
         with(reorderableItemScopeImpl) {
             content()
-        }
-    }
-     */
-
-    with(reorderableItemScopeImpl) {
-        Box(
-            modifier = modifier
-                .onGloballyPositioned {
-                    itemPosition = it.positionInRoot()
-
-                    val draggableItemState = DraggableItemState(
-                        key = key,
-                        data = data,
-                        positionInRoot = it.positionInRoot(),
-                        size = it.size.toSize(),
-                        dropTargets = dropTargets,
-                        dropStrategy = dropStrategy,
-                        dropAnimationSpec = dropAnimationSpec,
-                        sizeDropAnimationSpec = sizeDropAnimationSpec,
-                        content = draggableContent,
-                    )
-
-                    reorderState.dndState.addOrUpdateDraggableItem(
-                        state = draggableItemState,
-                    )
-                }
-                .pointerInput(enabled, key, reorderState, reorderState.dndState.enabled) {
-                    detectDragStartGesture(
-                        key = key,
-                        state = reorderState.dndState,
-                        enabled = enabled && reorderState.dndState.enabled,
-                        dragAfterLongPress = true,
-                    )
-                }
-                .dropTarget(
-                    key = key,
-                    state = reorderState.dndState,
-                    zIndex = zIndex,
-                    onDrop = onDrop,
-                    onDragEnter = onDragEnter,
-                    onDragExit = onDragExit,
-                )
-                .then(modifier),
-        ) {
-            content(isDragging)
         }
     }
 
