@@ -45,13 +45,9 @@ import kotlinx.coroutines.launch
  * @see DragAndDropState
  */
 @Composable
-fun <T> rememberDragAndDropState(
-    dragAfterLongPress: Boolean = false,
-): DragAndDropState<T> {
+fun <T> rememberDragAndDropState(): DragAndDropState<T> {
     return remember {
-        DragAndDropState(
-            dragAfterLongPress = dragAfterLongPress,
-        )
+        DragAndDropState()
     }
 }
 
@@ -62,9 +58,7 @@ fun <T> rememberDragAndDropState(
  * @param T type of the data that is dragged
  */
 @Stable
-class DragAndDropState<T>(
-    internal val dragAfterLongPress: Boolean = false,
-) {
+class DragAndDropState<T>() {
     /**
      * If true, drag and drop is enabled
      */
@@ -120,7 +114,7 @@ class DragAndDropState<T>(
      * @param state - new state
      */
     internal fun addOrUpdateDraggableItem(
-        state: DraggableItemState<T>
+        state: DraggableItemState<T>,
     ) {
         val key = state.key
         val oldState = draggableItemMap[key]
@@ -144,7 +138,7 @@ class DragAndDropState<T>(
      */
     private fun updateDraggableItem(
         oldState: DraggableItemState<T>,
-        newState: DraggableItemState<T>
+        newState: DraggableItemState<T>,
     ) {
         oldState.size = newState.size
         oldState.positionInRoot = newState.positionInRoot
@@ -157,8 +151,10 @@ class DragAndDropState<T>(
     private var dragStartOffset: Offset = Offset.Zero
 
     internal val dragPosition: MutableState<Offset> = mutableStateOf(Offset.Zero)
-    internal val dragPositionAnimatable: Animatable<Offset, AnimationVector2D> = Animatable(Offset.Zero, Offset.VectorConverter)
-    internal val dragSizeAnimatable: Animatable<Size, AnimationVector2D> = Animatable(Size.Zero, Size.VectorConverter)
+    internal val dragPositionAnimatable: Animatable<Offset, AnimationVector2D> =
+        Animatable(Offset.Zero, Offset.VectorConverter)
+    internal val dragSizeAnimatable: Animatable<Size, AnimationVector2D> =
+        Animatable(Size.Zero, Size.VectorConverter)
 
     /**
      * Handle drag start method is called when drag starts
@@ -240,7 +236,9 @@ class DragAndDropState<T>(
         )
 
         if (hoveredDropTarget?.key != hoveredDropTargetKey && newDraggedItemState != null) {
-            dropTargetMap.values.find { it.key == hoveredDropTargetKey }?.onDragExit?.invoke(newDraggedItemState)
+            dropTargetMap.values.find { it.key == hoveredDropTargetKey }?.onDragExit?.invoke(
+                newDraggedItemState,
+            )
             hoveredDropTarget?.onDragEnter?.invoke(newDraggedItemState)
         }
 
@@ -265,7 +263,8 @@ class DragAndDropState<T>(
             val draggedItem = draggableItemMap[currentDraggableItem.key]
 
             val positionAnimation = launch {
-                val dropTopLeft = dropTarget?.getDropTopLeft(currentDraggableItem.size) ?: currentDraggableItem.positionInRoot
+                val dropTopLeft = dropTarget?.getDropTopLeft(currentDraggableItem.size)
+                    ?: currentDraggableItem.positionInRoot
 
                 val sizeDiff =
                     if (draggedItem == null) {

@@ -28,12 +28,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.toSize
 import com.mohamedrejeb.compose.dnd.DragAndDropState
-import com.mohamedrejeb.compose.dnd.gesture.detectDragStartGesture
 
 /**
  * Wrapper Composable for draggable item.
@@ -57,14 +55,12 @@ fun <T> DraggableItem(
     key: Any,
     data: T,
     state: DragAndDropState<T>,
-    enabled: Boolean = true,
-    dragAfterLongPress: Boolean = state.dragAfterLongPress,
     dropTargets: List<Any> = emptyList(),
     dropStrategy: DropStrategy = DropStrategy.SurfacePercentage,
     dropAnimationSpec: AnimationSpec<Offset> = SpringSpec(),
     sizeDropAnimationSpec: AnimationSpec<Size> = SpringSpec(),
     draggableContent: (@Composable () -> Unit)? = null,
-    content: @Composable DraggableItemScope.() -> Unit,
+    content: @Composable DraggableItemScope.(isDraggable: Boolean) -> Unit,
 ) {
     var itemPosition by remember { mutableStateOf(Offset.Zero) }
 
@@ -127,7 +123,7 @@ fun <T> DraggableItem(
                         sizeDropAnimationSpec = sizeDropAnimationSpec,
                         content = draggableContent ?: {
                             with(draggableItemScopeShadowImpl) {
-                                content()
+                                content(isDragging)
                             }
                         },
                     )
@@ -135,17 +131,9 @@ fun <T> DraggableItem(
                     state.addOrUpdateDraggableItem(
                         state = draggableItemState,
                     )
-                }
-                .pointerInput(enabled, key, state, state.enabled) {
-                    detectDragStartGesture(
-                        key = key,
-                        state = state,
-                        enabled = enabled && state.enabled,
-                        dragAfterLongPress = dragAfterLongPress,
-                    )
                 },
         ) {
-            content()
+            content(isDragging)
         }
     }
 }

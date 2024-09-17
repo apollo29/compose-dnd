@@ -28,13 +28,9 @@ import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
  * @return [ReorderState]
  */
 @Composable
-fun <T> rememberReorderState(
-    dragAfterLongPress: Boolean = false,
-): ReorderState<T> {
+fun <T> rememberReorderState(): ReorderState<T> {
     return remember {
-        ReorderState(
-            dragAfterLongPress = dragAfterLongPress,
-        )
+        ReorderState()
     }
 }
 
@@ -52,9 +48,7 @@ class ReorderState<T>(
      * State of the drag and drop
      */
     @ExperimentalDndApi
-    val dndState = DragAndDropState<T>(
-        dragAfterLongPress = dragAfterLongPress,
-    )
+    val dndState = DragAndDropState<T>()
 
     @OptIn(ExperimentalDndApi::class)
     val draggedItem get() = dndState.draggedItem

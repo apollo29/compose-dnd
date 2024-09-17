@@ -131,7 +131,7 @@ private fun ListToListWithReorderContent(
     val lazyListStateOne = rememberLazyListState()
     val lazyListStateTwo = rememberLazyListState()
 
-    val reorderState = rememberReorderState<String>(true)
+    val reorderState = rememberReorderState<String>()
 
     val reorderableLazyListStateOne =
         rememberReorderableLazyListState(
@@ -219,8 +219,11 @@ private fun ListToListWithReorderContent(
                         },
                         modifier = Modifier,
                     ) {
-                        // todo isDragging is Redundant
-                        CardBox(item = item, isDragging = isDragging)
+                        CardBox(
+                            modifier = Modifier.longPressDraggableHandle(),
+                            item = item,
+                            isDragging = isDragging,
+                        )
                     }
                 }
             }
@@ -282,6 +285,7 @@ private fun ListToListWithReorderContent(
                         modifier = Modifier,
                     ) {
                         CardBox(
+                            modifier = Modifier.longPressDraggableHandle(),
                             item = item,
                             isDragging = isDragging,
                         )

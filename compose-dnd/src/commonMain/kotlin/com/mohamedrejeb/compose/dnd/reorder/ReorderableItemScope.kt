@@ -13,6 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.IntSize
+import com.mohamedrejeb.compose.dnd.annotation.ExperimentalDndApi
 import com.mohamedrejeb.compose.dnd.drag.DraggableItemScope
 import kotlinx.coroutines.launch
 
@@ -70,6 +71,7 @@ class ReorderableItemScopeImpl<N>(
      * @param onDragStarted The function that is called when the item starts being dragged
      * @param onDragStopped The function that is called when the item stops being dragged
      */
+    @OptIn(ExperimentalDndApi::class)
     override fun Modifier.draggableHandle(
         enabled: Boolean,
         interactionSource: MutableInteractionSource?,
@@ -105,6 +107,17 @@ class ReorderableItemScopeImpl<N>(
                 onDragStopped()
             },
             onDrag = { change, dragAmount ->
+                // DND
+                val drag = change
+                val draggableItemState =
+                    reorderState.dndState.draggableItemMap[key] ?: return@draggable
+
+                coroutineScope.launch {
+                    reorderState.dndState.handleDragStart(drag.position + draggableItemState.positionInRoot)
+                }
+
+                reorderState.dndState.pointerId = drag.id
+                // END
                 change.consume()
                 reorderableLazyCollectionState.onDrag(dragAmount)
             },
@@ -119,6 +132,7 @@ class ReorderableItemScopeImpl<N>(
      * @param onDragStarted The function that is called when the item starts being dragged
      * @param onDragStopped The function that is called when the item stops being dragged
      */
+    @OptIn(ExperimentalDndApi::class)
     override fun Modifier.longPressDraggableHandle(
         enabled: Boolean,
         interactionSource: MutableInteractionSource?,
@@ -154,6 +168,18 @@ class ReorderableItemScopeImpl<N>(
                 onDragStopped()
             },
             onDrag = { change, dragAmount ->
+                // DND
+                val drag = change
+                val draggableItemState =
+                    reorderState.dndState.draggableItemMap[key] ?: return@longPressDraggable
+
+                coroutineScope.launch {
+                    reorderState.dndState.handleDragStart(drag.position + draggableItemState.positionInRoot)
+                }
+
+                reorderState.dndState.pointerId = drag.id
+                // END
+
                 change.consume()
                 reorderableLazyCollectionState.onDrag(dragAmount)
             },

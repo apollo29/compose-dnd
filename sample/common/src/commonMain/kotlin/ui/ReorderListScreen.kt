@@ -125,8 +125,6 @@ private fun ReorderScreenContent(
             }
         }
 
-
-
     ReorderContainer(
         state = reorderState,
         modifier = modifier,
@@ -164,6 +162,7 @@ private fun ReorderScreenContent(
                 ) {
                     RedBox(
                         modifier = Modifier
+                            .longPressDraggableHandle()
                             .graphicsLayer {
                                 alpha = if (isDragging) 0f else 1f
                             }

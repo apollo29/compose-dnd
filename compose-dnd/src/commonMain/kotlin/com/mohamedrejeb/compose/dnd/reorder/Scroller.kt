@@ -146,6 +146,8 @@ class Scroller internal constructor(
     ): Boolean {
         if (!canScroll(direction)) return false
 
+        println("*** start: $direction")
+
         if (programmaticScrollJob == null) {
             programmaticScrollJob = scope.launch {
                 scrollLoop()
