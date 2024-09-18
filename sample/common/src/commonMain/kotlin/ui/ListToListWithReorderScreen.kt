@@ -16,16 +16,15 @@
 package ui
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,7 +44,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -56,7 +54,7 @@ import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
-import components.RedBox
+import components.CardBox
 import kotlinx.coroutines.launch
 import utils.handleLazyListScroll
 
@@ -79,7 +77,7 @@ object ListToListWithReorderScreen : Screen {
                         IconButton(
                             onClick = {
                                 navigator.pop()
-                            }
+                            },
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Rounded.ArrowBack,
@@ -95,7 +93,7 @@ object ListToListWithReorderScreen : Screen {
                     .fillMaxSize()
                     .safeDrawingPadding()
                     .padding(paddingValues)
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
         }
     }
@@ -113,7 +111,7 @@ private fun ListToListWithReorderContent(
                 "item2",
                 "item3",
                 "item4",
-            )
+            ),
         )
     }
 
@@ -124,7 +122,11 @@ private fun ListToListWithReorderContent(
                 "item6",
                 "item7",
                 "item8",
-            )
+                "item9",
+                "item10",
+                "item11",
+                "item12",
+            ),
         )
     }
 
@@ -139,18 +141,16 @@ private fun ListToListWithReorderContent(
         state = reorderState,
         modifier = modifier,
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
+        Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+            LazyRow(
                 state = lazyListStateOne,
                 contentPadding = PaddingValues(10.dp),
                 modifier = Modifier
-                    .weight(1.5f)
-                    .fillMaxHeight()
+                    .height(200.dp)
+                    .fillMaxWidth()
                     .border(
                         width = 1.dp,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -170,7 +170,7 @@ private fun ListToListWithReorderContent(
                                 add(state.data)
                             }
                         },
-                    )
+                    ),
             ) {
                 items(listOne, key = { it }) { item ->
                     ReorderableItem(
@@ -184,7 +184,7 @@ private fun ListToListWithReorderContent(
                                 val index = indexOf(item)
                                 if (index == -1) return@ReorderableItem
                                 if (!remove(state.data)) {
-                                        // If the item is not in listOne, it means it's coming from the listTwo
+                                    // If the item is not in listOne, it means it's coming from the listTwo
                                     listTwo = listTwo.toMutableList().apply {
                                         remove(state.data)
                                     }
@@ -201,34 +201,27 @@ private fun ListToListWithReorderContent(
                             }
                         },
                         draggableContent = {
-                            RedBox(
-                                isDragShadow = true,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(60.dp)
+                            CardBox(
+                                item = item,
+                                isDraggableContent = true,
                             )
                         },
-                        modifier = Modifier
+                        modifier = Modifier,
                     ) {
-                        RedBox(
-                            modifier = Modifier
-                                .graphicsLayer {
-                                    alpha = if (isDragging) 0f else 1f
-                                }
-                                .fillMaxWidth()
-                                .height(60.dp)
+                        CardBox(
+                            //modifier = Modifier.longPressDraggableHandle(),
+                            item = item,
+                            isDragging = isDragging,
                         )
                     }
                 }
             }
 
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(20.dp),
                 state = lazyListStateTwo,
                 contentPadding = PaddingValues(10.dp),
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight()
                     .border(
                         width = 1.dp,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -248,7 +241,7 @@ private fun ListToListWithReorderContent(
                                 add(state.data)
                             }
                         },
-                    )
+                    ),
             ) {
                 items(listTwo, key = { it }) { item ->
                     ReorderableItem(
@@ -279,22 +272,17 @@ private fun ListToListWithReorderContent(
                             }
                         },
                         draggableContent = {
-                            RedBox(
-                                isDragShadow = true,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(60.dp)
+                            CardBox(
+                                item = item,
+                                isDraggableContent = true,
                             )
                         },
-                        modifier = Modifier
+                        modifier = Modifier,
                     ) {
-                        RedBox(
-                            modifier = Modifier
-                                .graphicsLayer {
-                                    alpha = if (isDragging) 0f else 1f
-                                }
-                                .fillMaxWidth()
-                                .height(60.dp)
+                        CardBox(
+                            //modifier = Modifier.longPressDraggableHandle(),
+                            item = item,
+                            isDragging = isDragging,
                         )
                     }
                 }
