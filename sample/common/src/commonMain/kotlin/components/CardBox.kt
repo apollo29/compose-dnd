@@ -38,7 +38,7 @@ fun CardBox(
                 .border(2.dp, Color.LightGray, RoundedCornerShape(10.dp))
                 .background(color = if (isDragging) Color.LightGray else Color.White)
                 .graphicsLayer {
-                    alpha = if (isDraggableContent) 0.2f else 1f
+                    alpha = if (isDraggableContent) 1f else .5f
                 },
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,

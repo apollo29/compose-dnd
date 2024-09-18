@@ -41,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -53,8 +54,9 @@ import com.mohamedrejeb.compose.dnd.drop.dropTarget
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
-import com.mohamedrejeb.compose.dnd.reorder.rememberReorderableLazyListState
 import components.CardBox
+import kotlinx.coroutines.launch
+import utils.handleLazyListScroll
 
 object ListToListWithReorderScreen : Screen {
 
@@ -128,31 +130,12 @@ private fun ListToListWithReorderContent(
         )
     }
 
+    val scope = rememberCoroutineScope()
+
+    val reorderState = rememberReorderState<String>()
+
     val lazyListStateOne = rememberLazyListState()
     val lazyListStateTwo = rememberLazyListState()
-
-    val reorderState = rememberReorderState<String>(true)
-
-    val reorderableLazyListStateOne =
-        rememberReorderableLazyListState(
-            lazyListState = lazyListStateOne,
-            dragAfterLongPress = true,
-        ) { from, to ->
-            listOne = listOne.toMutableList().apply {
-                add(to.index, removeAt(from.index))
-            }
-        }
-
-    val reorderableLazyListStateTimeline =
-        rememberReorderableLazyListState(
-            lazyListState = lazyListStateTwo,
-            dragAfterLongPress = true,
-        ) { from, to ->
-            listTwo = listTwo.toMutableList().apply {
-                add(to.index, removeAt(from.index))
-            }
-        }
-
 
     ReorderContainer(
         state = reorderState,
@@ -191,8 +174,7 @@ private fun ListToListWithReorderContent(
             ) {
                 items(listOne, key = { it }) { item ->
                     ReorderableItem(
-                        state = reorderableLazyListStateOne,
-                        reorderState = reorderState,
+                        state = reorderState,
                         key = item,
                         data = item,
                         zIndex = 1f,
@@ -209,6 +191,13 @@ private fun ListToListWithReorderContent(
                                 }
 
                                 add(index, state.data)
+
+                                scope.launch {
+                                    handleLazyListScroll(
+                                        lazyListState = lazyListStateOne,
+                                        dropIndex = index,
+                                    )
+                                }
                             }
                         },
                         draggableContent = {
@@ -219,8 +208,11 @@ private fun ListToListWithReorderContent(
                         },
                         modifier = Modifier,
                     ) {
-                        // todo isDragging is Redundant
-                        CardBox(item = item, isDragging = isDragging)
+                        CardBox(
+                            //modifier = Modifier.longPressDraggableHandle(),
+                            item = item,
+                            isDragging = isDragging,
+                        )
                     }
                 }
             }
@@ -253,8 +245,7 @@ private fun ListToListWithReorderContent(
             ) {
                 items(listTwo, key = { it }) { item ->
                     ReorderableItem(
-                        state = reorderableLazyListStateTimeline,
-                        reorderState = reorderState,
+                        state = reorderState,
                         key = item,
                         data = item,
                         zIndex = 1f,
@@ -271,6 +262,13 @@ private fun ListToListWithReorderContent(
                                 }
 
                                 add(index, state.data)
+
+                                scope.launch {
+                                    handleLazyListScroll(
+                                        lazyListState = lazyListStateTwo,
+                                        dropIndex = index,
+                                    )
+                                }
                             }
                         },
                         draggableContent = {
@@ -282,6 +280,7 @@ private fun ListToListWithReorderContent(
                         modifier = Modifier,
                     ) {
                         CardBox(
+                            //modifier = Modifier.longPressDraggableHandle(),
                             item = item,
                             isDragging = isDragging,
                         )
