@@ -18,7 +18,6 @@ package com.mohamedrejeb.compose.dnd.drag
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -66,6 +65,7 @@ fun <T> DraggableItem(
     val draggableItemScopeShadowImpl = remember(key) {
         DraggableItemScopeShadowImpl(
             key = key,
+            state = state,
         )
     }
 
